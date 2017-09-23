@@ -20,7 +20,6 @@ int dup_count = 0;
 		/*Check if the number is divisible by the divisor */
 		int counter = 0;
 		while(n % divisor == 0){
-
 			printf("%d * ", divisor );
 			n = n /divisor;
 		}
