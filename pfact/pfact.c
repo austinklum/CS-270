@@ -11,6 +11,7 @@ int main(int argc , char **argv){
 	int n = atoi(argv[1]);
 
 int divisor = 2;
+int inital_n = n;
 int half_n = n/2;
 int first_iter = 1;
 	/* The factors should be found in first half of n */
@@ -25,7 +26,7 @@ int first_iter = 1;
 		}
 		/*On the first iteration through display the number = */
 		if(first_iter == 1 && counter > 0){
-			printf("%d = ", (half_n*2));
+			printf("%d = ", inital_n);
 			first_iter = 0;
 		}else if(counter > 0){
 			/*Prepend a * if there is a value */
