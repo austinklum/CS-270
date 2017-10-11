@@ -13,50 +13,66 @@ int digit_count(int val);
 char digit_at_pos(int, int);
 int max_digit_count(int *arr);
 void print_col(int *arr);
+void print_row(int *arr);
 
 int main(int argc, char **argv){
 	FILE *fp;
-	fp = fopen("odyssey","r");
+	fp = stdin;
+	/*fp = fopen("odyssey","r");*/
 	char c = 0;
 	int arr[27];
 	int i;
-	 /*Initalize array*/
+	 /*Initialize array*/
 	for(i = 0; i < 27; i++){
 		 arr[i] = 0;
 	}
 	 /*Gather input. Apparently setting assignment and comparing is allowed in one line*/
 	while((c = fgetc(fp)) != EOF){
+		/*Scale c to be case insensitive and in order from 0 - 26*/
 		int c_scaled = (int)(toupper(c) - 'A');
-		//printf("c = %c : c = %d : cUpper = %d : A = %d :  C_Scaled = %d\n" ,c,(int)c,(int)toupper(c),(int)'A',c_scaled);
+		/*If in range add to array*/
 		if(c_scaled >= 0 && c_scaled <= 26){
 			arr[c_scaled]++;
+		/*else, if it is not a space and just happens to be some other strange character. Add it to the left over data*/
 		}else if(!isspace(c)){
 			arr[26]++;
 		}
 
 	}
-	print_col(arr);
-	 /*Display results in row mode*/
-	/* for(i = 0; i < 26; i++){
+	if(strcmp(argv[0], "c") == 0){
+		/*Display results in column mode*/
+		print_col(arr);
+	}else{
+		 /*Display results in row mode*/
+		print_row(arr);
+	}
+	return 0;
+}
+void print_row(int *arr){
+	int i;
+	/*Print out the rows up to Z*/
+	for(i = 0; i < 26; i++){
 		 printf("%c : %d\n", (i + 'A'), arr[i] );
 	 }
-	 printf("%c : %d\n", '*', arr[26]);*/
-	return 0;
+	/*Print out misc characters*/
+	 printf("%c : %d\n", '*', arr[26]);
 }
 
 void print_col(int arr[]){
 	int i;
 	/*Get the max digit count*/
-	int maxDigit = max_digit_count(arr);
-	maxDigit--;
+	int maxDigit = max_digit_count(arr) - 1;
+	/*Use max digit as the decrementing count to print out the proper chars in each row.*/
 	while(maxDigit >= 0){
+		/*Print out a row at the current value of maxDigit*/
 		for(i = 0; i < 27; i++){
-			if(digit_count(arr[i]) < maxDigit + 1 && 0 < maxDigit){
+			if(digit_count(arr[i]) <= maxDigit && 0 < maxDigit){
 				printf("  ");
 			}else{
 				printf("%c ", digit_at_pos(arr[i], maxDigit));
 			}
 		}
+		/*Make forward progress and next line*/
 		maxDigit--;
 		printf("\n");
 	}
