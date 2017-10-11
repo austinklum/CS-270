@@ -39,7 +39,7 @@ int main(int argc, char **argv){
 		}
 
 	}
-	if(strcmp(argv[0], "c") == 0){
+	if(argc > 1 && strcmp(argv[1], "-c") == 0){
 		/*Display results in column mode*/
 		print_col(arr);
 	}else{
@@ -52,10 +52,10 @@ void print_row(int *arr){
 	int i;
 	/*Print out the rows up to Z*/
 	for(i = 0; i < 26; i++){
-		 printf("%c : %d\n", (i + 'A'), arr[i] );
+		 printf("%c: %d\n", (i + 'A'), arr[i] );
 	 }
 	/*Print out misc characters*/
-	 printf("%c : %d\n", '*', arr[26]);
+	 printf("%c: %d\n", '*', arr[26]);
 }
 
 void print_col(int arr[]){
