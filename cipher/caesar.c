@@ -37,7 +37,7 @@ int main(int argc, char **argv){
 	printf("Criteria Includes:  Is Encrypt: %d , Is Caesar: %d , Key : %s \n", isEncrypt, isCaesar, argv[3]);
 	if(isEncrypt){
 		if(isCaesar){
-			encryptC(*key, str, size);
+			encryptC(shift, str, size);
 		}else{
 			//encryptV(*key, &str, size);
 		}
@@ -99,13 +99,15 @@ void encryptC(int key, char *str, int size){
 	printf("Inner function print str : %s\n", str);
 	int i;
 	for(i = 0; i < size; i++){
-		printf("str[%d] = %c : %d\n", i , str[i],str[i]);
-		//if str[i] starts out less than 90 and greater than 65, but adding to it makes it greater than 90, subtract 25
+		//printf("str[%d] = %c : %d\n", i , str[i],str[i]);
+
 		if(isalpha(str[i])){
+				printf("key = %d, str[i] + key = %c\n",key,(str[i]+ key));
 				str[i] += key;
-			if(str[i] > 115 && str[i] < 97){
+			if(str[i] > 90 && str[i] < 97){
 				/*Wrap around problems*/
-				str[i] -= 25;
+				 int diff = str[i] - 90;
+				 str[i] = 90 + diff;
 			}
 		}
 	}
