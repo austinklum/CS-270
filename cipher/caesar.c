@@ -12,9 +12,9 @@
 
 
 
-void encryptV(char *key, char *str, int strSize);
+void encryptV(char *key, char *str);
 void parseArgs(char **argv, int *isEncrypt, int *isCaesar);
-void encryptC(int key, char *str, int size);
+void encryptC(int key, char *str);
 void processString(char *str, int *size, char *path);
 int getKey(int index, char *key, int *repeatCount);
 void shift(char *,int);
@@ -30,7 +30,7 @@ int main(int argc, char **argv){
 	//int shift = atoi(argv[3]);
 	//printf("shift si valued at = %d\n", shift);
 	//char *key = calloc(shift, sizeof(char));
-	char *str = calloc(40, sizeof(char));
+	char *str = calloc(0, sizeof(char));
 	int size = 0;
 	printf("Processing string\n");
 	processString(str, &size, argv[4]);
@@ -40,15 +40,15 @@ int main(int argc, char **argv){
 	printf("Criteria Includes:  Is Encrypt: %d , Is Caesar: %d , Key : %s \n", isEncrypt, isCaesar, argv[3]);
 	if(isEncrypt){
 		if(isCaesar){
-			encryptC(atoi(argv[3]), str, size);
+			encryptC(atoi(argv[3]), str);
 		}else{
-			encryptV(argv[3], str, size);
+			encryptV(argv[3], str);
 		}
 	}else{
 		if(isCaesar){
-			decryptC(atoi(argv[3]), str, size);
+			decryptC(atoi(argv[3]), str);
 		} else {
-			decryptV(argv[3], str, size);
+			decryptV(argv[3], str);
 		}
 	}
 	printf("Encrypted String is :\n %s", str);
@@ -88,58 +88,68 @@ void processString(char *str, int *size, char *path){
 	char c = 0;
 	while((c = fgetc(fp)) != EOF){
 		//Add to string we are building
-		str = realloc(str, * sizeof(char));
-		str[(*size)] = c;
-		(*size)++;
-		str[(*size)] = '\0';
+		//printf("String = %s : Size = %d\n", str,strlen(str));
+		str = realloc(str,strlen(str) + 1 * sizeof(char));
+		str[strlen(str)] = c;
+		//(*size)++;
+		//str[strlen(str) + 1] = '\0';
 		//printf("%c\n",c);
 	}
 }
 
 
-void encryptC(int key, char *str, int size){
+void encryptC(int key, char *str){
 	printf("Inner function print str : %s\n", str);
 	int i;
-	for(i = 0; i < size; i++){
+	for(i = 0; i < strlen(str); i++){
 		shift(&str[i],key);
 	}
 }
 
 void shift(char *c, int key){
 	if(isalpha(*c)){
-		printf("Before: %c, %d | Diff: %c, %d  |  After: %c, %d\n",*c,*c,*c+key,*c+key, 64 + (*c+key)-122,64 + (*c+key)-122);
+		//printf("Before: %c, %d | Diff: %c, %d  |  After: %c, %d\n",*c,*c,*c+key,*c+key, 64 + (*c+key)-122,64 + (*c+key)-122);
 		/*This sanitizes our shift so it cannot shift into a bad value*/
-		while(key > 26){
-			key -= 26;
-		}
+		/*while(key > 25){
+			key -= 25;
+		}*/
 		/*large_c is the value of *c but without the overflow problems of a char*/
 		int large_c= *c + key;
 		*c += key;
-		//while(!inRange(c)){
 			if(large_c > 90 && large_c < 97){
 				/*Wrap around problems*/
 				 int diff = large_c - 90;
 				 *c = 96 + diff;
 			}
 			if(large_c > 122){
-				printf("C before difference = %c : %d\n",*c,*c);
+				//printf("C before difference = %c : %d\n",*c,*c);
 				int diff = large_c - 122;
-				printf("Diff = %d\n", diff);
+				//printf("Diff = %d\n", diff);
 				*c = 64 + diff;
 			}
-			printf("Character = %c : %d\n",*c,*c);
-		//}
+			//printf("Character = %c : %d\n",*c,*c);
 	}
 }
 
-void encryptV(char *key, char *str, int size){
+void encryptV(char *key, char *str){
 	int i;
 	int keyCount = 0;
 	printf("Size of key = %d\n" , strlen(key));
-	for(i = 0; i < size; i++){
-		shift(&str[i], (key[keyCount] - 'A' + 1));
-		printf("Looking at index : %d\n" + keyCount);
-		printf("Key = %c : Key - A = %d : Key in char form = %c\n", key[keyCount], key[keyCount] - 'A' + 1, key[keyCount] - 'A' + 1);
+	for(i = 0; i < strlen(str); i++){
+		int newKey = 0;
+		if(isalpha(str[i])){
+			newKey = key[keyCount] - 64;
+			if(str[i] > 90){
+				printf("Hit me baby!\n");
+					newKey -= 5;
+			}
+		}
+		printf("str[i] = %c, %d",str[i],str[i]);
+		printf(" : %d : Key = %c : Key - A = %c, %d : ",keyCount, key[keyCount], newKey, newKey);
+		shift(&str[i], newKey);
+		printf("New str[i] = %c, %d\n", str[i], str[i]);
+		//printf("Looking at index : %d\n" + keyCount);
+
 		if(keyCount + 1 >= strlen(key)){
 			printf("Reset\n");
 			keyCount = 0;
@@ -149,19 +159,19 @@ void encryptV(char *key, char *str, int size){
 	}
 }
 
-void decryptV(char *key, char *str, int size){
+void decryptV(char *key, char *str){
 	int i;
 	/*Make the reverse key*/
 	for(i = 0; i < strlen(key); i++){
 		printf("Key before: %d : %c\n", key[i],key[i]);
-		key[i] *= 2;
+		key[i] *= -1;
 		printf("Key After: %d : %c\n", key[i],key[i]);
 	}
-	encryptV( key,  str,  size);
+	encryptV( key,  str);
 }
 
-void decryptC(int key, char *str, int size){
-	encryptC( (key*-1),  str,  size);
+void decryptC(int key, char *str){
+	encryptC( (key*-1),  str);
 }
 /*Split up key string into its peices and do str[i] += key[j] - 'a'
 or for wrapping do str[i] = str[i] + (key[j] - 'a') - 127*/
