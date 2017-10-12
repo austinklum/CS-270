@@ -14,19 +14,19 @@ void parseArgs(char **argv, int *isEncrypt, int *isCaesar);
 void encryptC(int key, char *str, int size);
 void processString(char *str, int *size, char *path);
 int getKey(int index, char *key, int *repeatCount);
+void shift(char *,int);
+int getKey(int index, char *key, int *repeatCount);
 
 
 int main(int argc, char **argv){
-	printf("What?\nThe!");
-	printf("Errors!?");
 	if (argc < 3){
 		exit(-1);
 	}
 	int isEncrypt;
 	int isCaesar;
-	int shift = atoi(argv[3]);
+	//int shift = atoi(argv[3]);
 	//printf("shift si valued at = %d\n", shift);
-	char *key = calloc(shift, sizeof(char));
+	//char *key = calloc(shift, sizeof(char));
 	char *str = calloc(0, sizeof(char));
 	int size = 0;
 	printf("Processing string\n");
@@ -37,9 +37,9 @@ int main(int argc, char **argv){
 	printf("Criteria Includes:  Is Encrypt: %d , Is Caesar: %d , Key : %s \n", isEncrypt, isCaesar, argv[3]);
 	if(isEncrypt){
 		if(isCaesar){
-			encryptC(shift, str, size);
+			encryptC(atoi(argv[3]), str, size);
 		}else{
-			//encryptV(*key, &str, size);
+			encryptV(argv[3], str, size);
 		}
 	}else{
 		if(isCaesar){
@@ -54,7 +54,6 @@ int main(int argc, char **argv){
 }
 
 void parseArgs(char **argv, int *isEncrypt, int *isCaesar){
-	printf("%s",argv[1]);
 	if(strcmp(argv[1], "e") == 0){
 		*isEncrypt = 1;
 	}else if(strcmp(argv[1],"d") == 0){
@@ -99,23 +98,45 @@ void encryptC(int key, char *str, int size){
 	printf("Inner function print str : %s\n", str);
 	int i;
 	for(i = 0; i < size; i++){
-		//printf("str[%d] = %c : %d\n", i , str[i],str[i]);
+		shift(&str[i],key);
+	}
+}
 
-		if(isalpha(str[i])){
-				printf("key = %d, str[i] + key = %c\n",key,(str[i]+ key));
-				str[i] += key;
-			if(str[i] > 90 && str[i] < 97){
-				/*Wrap around problems*/
-				 int diff = str[i] - 90;
-				 str[i] = 90 + diff;
-			}
+void shift(char *c, int key){
+	if(isalpha(*c)){
+		*c += key;
+		if(*c > 90 && *c < 97){
+			/*Wrap around problems*/
+			 int diff = *c - 90;
+			 *c = 90 + diff;
+		}
+		if(*c > 122){
+			int diff = *c - 122;
+			*c = 64 + diff;
 		}
 	}
 }
-/*
-Split up key string into its peices and do str[i] += key[j] - 'a'
-or for wrapping do str[i] = str[i] + (key[j] - 'a') - 127
-void encryptV(char *key, char *str, int strSize){
+
+void encryptV(char *key, char *str, int size){
+	int i;
+	int keyCount = 0;
+	printf("Size of key = %d\n" , strlen(key));
+	for(i = 0; i < size; i++){
+		shift(&str[i], (key[keyCount] - 'A' + 1));
+		printf("Looking at index : %d\n" + keyCount);
+		printf("Key = %c : Key - A = %d : Key in char form = %c\n", key[keyCount], key[keyCount] - 'A' + 1, key[keyCount] - 'A' + 1);
+		if(keyCount + 1 >= strlen(key)){
+			printf("Reset\n");
+			keyCount = 0;
+		}else{
+			keyCount++;
+		}
+	}
+}
+
+/*Split up key string into its peices and do str[i] += key[j] - 'a'
+or for wrapping do str[i] = str[i] + (key[j] - 'a') - 127*/
+/*void encryptV(char *key, char *str, int strSize){
 	int i = 0;
 	int repeatCount = 0;
 
@@ -129,21 +150,24 @@ void encryptV(char *key, char *str, int strSize){
 			str[i] = str[i] + nextKey - 127;
 		}
 	}
-}
- Will do index until it hits \0
+}*/
+/* Will do index until it hits \0
  * After that it will subtract the length of the string from the index
  * to give the proper peiece of the passkey.
  *
  * if it repeats more than once multiply the size of whats being subtracted
  *
- *
+ **/
 int getKey(int index, char *key, int *repeatCount){
 	if(key[index] == '\0'){
 		(*repeatCount)++;
 	}
 
-	(strlen(key) * (*repeatCount)) calculates how far to move back for repeating values
+	//(strlen(key) * (*repeatCount))
+	/*calculates how far to move back for repeating values
 	 * the - 'a' does the ascii math to give the integer to shift
-	 *
+	 * */
+
 	return (int)(key[index - (strlen(key) * (*repeatCount))] - 'a');
-}*/
+}
+
