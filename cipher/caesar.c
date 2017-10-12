@@ -8,6 +8,9 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
+#include<limits.h>
+
+
 
 void encryptV(char *key, char *str, int strSize);
 void parseArgs(char **argv, int *isEncrypt, int *isCaesar);
@@ -15,10 +18,10 @@ void encryptC(int key, char *str, int size);
 void processString(char *str, int *size, char *path);
 int getKey(int index, char *key, int *repeatCount);
 void shift(char *,int);
-int getKey(int index, char *key, int *repeatCount);
 
 
 int main(int argc, char **argv){
+	printf("%d\n",CHAR_MIN);
 	if (argc < 3){
 		exit(-1);
 	}
@@ -27,7 +30,7 @@ int main(int argc, char **argv){
 	//int shift = atoi(argv[3]);
 	//printf("shift si valued at = %d\n", shift);
 	//char *key = calloc(shift, sizeof(char));
-	char *str = calloc(0, sizeof(char));
+	char *str = calloc(40, sizeof(char));
 	int size = 0;
 	printf("Processing string\n");
 	processString(str, &size, argv[4]);
@@ -43,9 +46,9 @@ int main(int argc, char **argv){
 		}
 	}else{
 		if(isCaesar){
-			//decryptC(key);
+			decryptC(atoi(argv[3]), str, size);
 		} else {
-			//decryptV(key);
+			decryptV(argv[3], str, size);
 		}
 	}
 	printf("Encrypted String is :\n %s", str);
@@ -85,7 +88,7 @@ void processString(char *str, int *size, char *path){
 	char c = 0;
 	while((c = fgetc(fp)) != EOF){
 		//Add to string we are building
-		str = realloc(str,(*size) * sizeof(char));
+		str = realloc(str, * sizeof(char));
 		str[(*size)] = c;
 		(*size)++;
 		str[(*size)] = '\0';
@@ -104,16 +107,28 @@ void encryptC(int key, char *str, int size){
 
 void shift(char *c, int key){
 	if(isalpha(*c)){
+		printf("Before: %c, %d | Diff: %c, %d  |  After: %c, %d\n",*c,*c,*c+key,*c+key, 64 + (*c+key)-122,64 + (*c+key)-122);
+		/*This sanitizes our shift so it cannot shift into a bad value*/
+		while(key > 26){
+			key -= 26;
+		}
+		/*large_c is the value of *c but without the overflow problems of a char*/
+		int large_c= *c + key;
 		*c += key;
-		if(*c > 90 && *c < 97){
-			/*Wrap around problems*/
-			 int diff = *c - 90;
-			 *c = 90 + diff;
-		}
-		if(*c > 122){
-			int diff = *c - 122;
-			*c = 64 + diff;
-		}
+		//while(!inRange(c)){
+			if(large_c > 90 && large_c < 97){
+				/*Wrap around problems*/
+				 int diff = large_c - 90;
+				 *c = 96 + diff;
+			}
+			if(large_c > 122){
+				printf("C before difference = %c : %d\n",*c,*c);
+				int diff = large_c - 122;
+				printf("Diff = %d\n", diff);
+				*c = 64 + diff;
+			}
+			printf("Character = %c : %d\n",*c,*c);
+		//}
 	}
 }
 
@@ -134,6 +149,20 @@ void encryptV(char *key, char *str, int size){
 	}
 }
 
+void decryptV(char *key, char *str, int size){
+	int i;
+	/*Make the reverse key*/
+	for(i = 0; i < strlen(key); i++){
+		printf("Key before: %d : %c\n", key[i],key[i]);
+		key[i] *= 2;
+		printf("Key After: %d : %c\n", key[i],key[i]);
+	}
+	encryptV( key,  str,  size);
+}
+
+void decryptC(int key, char *str, int size){
+	encryptC( (key*-1),  str,  size);
+}
 /*Split up key string into its peices and do str[i] += key[j] - 'a'
 or for wrapping do str[i] = str[i] + (key[j] - 'a') - 127*/
 /*void encryptV(char *key, char *str, int strSize){
