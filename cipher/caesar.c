@@ -10,14 +10,14 @@
 #include<stdlib.h>
 #include<limits.h>
 
-
-
-void encryptV(char *key, char *str);
+void decryptC(int key, char *str);
+void decryptV(char *key, char *str);
+void encryptV(char *key, char *str, int isDecrypt);
 void parseArgs(char **argv, int *isEncrypt, int *isCaesar);
-void encryptC(int key, char *str);
+void encryptC(int key, char *str, int isDecrypt);
 void processString(char *str, int *size, char *path);
 int getKey(int index, char *key, int *repeatCount);
-void shift(char *,int);
+void shift(char *,int key,  int isDecrypt);
 
 
 int main(int argc, char **argv){
@@ -40,9 +40,9 @@ int main(int argc, char **argv){
 	printf("Criteria Includes:  Is Encrypt: %d , Is Caesar: %d , Key : %s \n", isEncrypt, isCaesar, argv[3]);
 	if(isEncrypt){
 		if(isCaesar){
-			encryptC(atoi(argv[3]), str);
+			encryptC(atoi(argv[3]), str, 0);
 		}else{
-			encryptV(argv[3], str);
+			encryptV(argv[3], str, 0);
 		}
 	}else{
 		if(isCaesar){
@@ -101,15 +101,16 @@ void processString(char *str, int *size, char *path){
 }
 
 
-void encryptC(int key, char *str){
+void encryptC(int key, char *str, int isDecrypt){
 	printf("Inner function print str : %s\n", str);
 	int i;
 	for(i = 0; i < strlen(str); i++){
-		shift(&str[i],key);
+		shift(&str[i],key, isDecrypt);
 	}
 }
 
-void shift(char *c, int key){
+void shift(char *c, int key, int isDecrypt){
+	printf("Shift was called\n");
 	if(isalpha(*c)){
 		//printf("Before: %c, %d | Diff: %c, %d  |  After: %c, %d\n",*c,*c,*c+key,*c+key, 64 + (*c+key)-122,64 + (*c+key)-122);
 		/*This sanitizes our shift so it cannot shift into a bad value*/
@@ -145,12 +146,19 @@ void shift(char *c, int key){
 		int large_c = *c;
 		int i;
 		for(i = 0; i < key; i++){
-			large_c++;
-			if(large_c == 91){
-				large_c = 97;
+			if(isDecrypt){
+				large_c--;
+			}else{
+				large_c++;
 			}
-			 else if (large_c == 123){
+			if (large_c == 91) {
+				large_c = 97;
+			} else if (large_c == 64) {
+				large_c = 122;
+			} else if (large_c == 123) {
 				large_c = 65;
+			} else if (large_c == 96) {
+				large_c = 90;
 			}
 		}
 		*c = large_c;
@@ -179,69 +187,44 @@ void shift(char *c, int key){
 	return 0;
 }*/
 
-void normalizeShift(char *c, int large_c){
-	if(*c == large_c){
-		return;
-	}
-	if(large_c > 90 && large_c < 97){
-		/*Wrap around problems*/
-		 int diff = large_c - 90;
-		 *c = 96 + diff;
-	}
-	if(large_c > 122){
-		//printf("C before difference = %c : %d\n",*c,*c);
-		int diff = large_c - 122;
-		//printf("Diff = %d\n", diff);
-		*c = 64 + diff;
-	}
-	//normalizeShift(c,large_c);
 
-}
-
-void encryptV(char *key, char *str){
+void encryptV(char *key, char *str, int isDecrypt){
 	int i;
 	for(i = 0; i < strlen(key); i++){
-
+		if(islower(key[i]) && isalpha(key[i])){
+			key[i] = toupper(key[i]) - 38;
+		} else {
+			key[i] = key[i] - 64;
+		}
 	}
 	int keyCount = 0;
 	printf("Size of key = %d\n" , strlen(key));
 	for(i = 0; i < strlen(str); i++){
-		int newKey = 0;
 		if(isalpha(str[i])){
-			newKey = key[keyCount] - 64;
-			if(str[i] > 90){
-				printf("Hit me baby!\n");
-					newKey -= 5;
+
+			shift(&str[i], key[keyCount], isDecrypt);
+			if(keyCount + 1 >= strlen(key)){
+				keyCount = 0;
+			}else{
+				keyCount++;
 			}
 		}
-		printf("str[i] = %c, %d",str[i],str[i]);
-		printf(" : %d : Key = %c : Key - A = %c, %d : ",keyCount, key[keyCount], newKey, newKey);
-		shift(&str[i], newKey);
-		printf("New str[i] = %c, %d\n", str[i], str[i]);
-		//printf("Looking at index : %d\n" + keyCount);
+		//printf("str[i] = %c, %d",str[i],str[i]);
+		///printf(" : %d : Key = %c : Key - A = %c, %d : ",keyCount, key[keyCount], newKey, newKey);
 
-		if(keyCount + 1 >= strlen(key)){
-			printf("Reset\n");
-			keyCount = 0;
-		}else{
-			keyCount++;
-		}
+		//printf("New str[i] = %c, %d\n", str[i], str[i]);
+
+
+
 	}
 }
 
 void decryptV(char *key, char *str){
-	int i;
-	/*Make the reverse key*/
-	for(i = 0; i < strlen(key); i++){
-		printf("Key before: %d : %c\n", key[i],key[i]);
-		key[i] *= -1;
-		printf("Key After: %d : %c\n", key[i],key[i]);
-	}
-	encryptV( key,  str);
+	encryptV(key, str, 1);
 }
 
 void decryptC(int key, char *str){
-	encryptC( 52-key,  str);
+	encryptC(key, str, 1);
 }
 /*Split up key string into its peices and do str[i] += key[j] - 'a'
 or for wrapping do str[i] = str[i] + (key[j] - 'a') - 127*/
