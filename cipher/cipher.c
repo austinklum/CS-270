@@ -23,7 +23,7 @@ int main(int argc, char **argv){
 	parseArgs(argv, &isEncrypt, &isCaesar);
 
 	FILE *fp;
-	if(argv[4] != NULL){
+	if(argc == 5 || argc == 6){
 		fp = fopen(argv[4],"r");
 	}else{
 		fp = stdin;
@@ -48,9 +48,21 @@ int main(int argc, char **argv){
 					keyIndex = decryptV(argv[3], str, keyIndex);
 				}
 			}
-			printf("%s",str);
+			if(argc == 6){
+				FILE *op;
+				op = fopen(argv[5],"a");
+				fprintf(op,"%s",str);
+				fflush(op);
+				fclose(op);
+			} else {
+				fflush(stdout);
+				printf("%s",str);
+			}
 		}
 	}while(input != NULL);
+
+	fclose(fp);
+
 	return 0;
 }
 
