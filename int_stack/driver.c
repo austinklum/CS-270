@@ -1,20 +1,19 @@
-/*
- * A simple driver program for processing commands to manipulate a stack of
- * integers. (Do NOT modify this file.)
- *
- * Author: Jason Sauppe
- * Date: 2017-10-17
- */
-/*#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "int_stack.h"
-
-#define BUFFER_SIZE 20
-
-int main(int argc, char **argv) {
-
-    char buffer[BUFFER_SIZE]; /* Can store reasonably long digits */
+///*
+// * A simple driver program for processing commands to manipulate a stack of
+// * integers. (Do NOT modify this file.)
+// *
+// * Author: Jason Sauppe
+// * Date: 2017-10-17
+// */
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
+//#include "int_stack.h"
+//
+//#define BUFFER_SIZE 20
+//
+//int main(int argc, char **argv) {
+//    char buffer[BUFFER_SIZE]; /* Can store reasonably long digits */
 //    char *fgets_rtn = NULL;
 //    struct int_stack *stk = NULL;
 //    int node_capacity = 5;
@@ -63,4 +62,4 @@ int main(int argc, char **argv) {
 //
 //    return 0;
 //}
-
+//
