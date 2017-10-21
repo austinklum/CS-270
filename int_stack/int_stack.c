@@ -58,9 +58,9 @@ struct is_node *newNode(int node_capacity){
 	np->next = NULL;
 
 	if(np->next == NULL){
-			printf("My next is NULL\n");
+			printf("\t*np next is NULL\n");
 		}else{
-			printf("My next is a VALUE\n");
+			printf("\t*np next is a VALUE\n");
 		}
 
 	return np;
@@ -100,6 +100,11 @@ void push(struct int_stack *stack, int d){
 		/*The first node was full or didn't exist; Create a new node at the top of stack*/
 		printf("Adding a new node!\n");
 		curnode = newNode(stack->node_capacity);
+		if(stack->head->next == NULL){
+				printf("---Head next is NULL\n");
+			}else{
+				printf("---Head next is a VALUE\n");
+			}
 		curnode->next = stack->head->next;
 		stack->head->next = curnode;
 	}
@@ -111,7 +116,7 @@ void push(struct int_stack *stack, int d){
 	if(curnode->next == NULL){
 		printf("My next is NULL\n");
 	}else{
-		printf("My next is a VALUE\n");
+		printf("!My next is a VALUE\n");
 	}
 }
 
