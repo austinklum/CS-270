@@ -5,6 +5,7 @@
  *      Author: Austin Klum
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include "int_stack.h"
 
 struct is_node *newNode();
@@ -19,7 +20,7 @@ int main(int argc, char **argv){
 	push(myStack, 3);
 	push(myStack, 4);
 	print_stack(myStack);
-	reset_stack(myStack);
+	free_stack(myStack);
 	printf("Printing stack.\n");
 	print_stack(myStack);
 	push(myStack, 5);
@@ -57,12 +58,6 @@ struct is_node *newNode(int node_capacity){
 	np->next_index = 0;
 	np->next = NULL;
 
-	if(np->next == NULL){
-			printf("\t*np next is NULL\n");
-		}else{
-			printf("\t*np next is a VALUE\n");
-		}
-
 	return np;
 }
 
@@ -71,8 +66,8 @@ void free_stack(struct int_stack *stack){
 	reset_stack(stack);
 
 	/*Free up the head and the stack itself*/
-	//freeUp(stack->head);
-	//free(stack);
+	freeUp(stack->head);
+	free(stack);
 }
 
 void reset_stack(struct int_stack *stack){
@@ -98,26 +93,14 @@ void push(struct int_stack *stack, int d){
 	printf("Stack size = %d\n", stack->size);
 	if(is_empty(stack) || curnode->next_index == stack->node_capacity){
 		/*The first node was full or didn't exist; Create a new node at the top of stack*/
-		printf("Adding a new node!\n");
 		curnode = newNode(stack->node_capacity);
-		if(stack->head->next == NULL){
-				printf("---Head next is NULL\n");
-			}else{
-				printf("---Head next is a VALUE\n");
-			}
 		curnode->next = stack->head->next;
 		stack->head->next = curnode;
 	}
-	printf("Inserting %d at %d\n",d,curnode->next_index);
 	/*Add to the node content the new data d*/
 	curnode->contents[curnode->next_index] = d;
 	curnode->next_index++;
 	stack->size++;
-	if(curnode->next == NULL){
-		printf("My next is NULL\n");
-	}else{
-		printf("!My next is a VALUE\n");
-	}
 }
 
 int pop(struct int_stack *stack){
