@@ -13,10 +13,10 @@ void freeUp(struct is_node *curnode);
 int main(int argc, char **argv){
 	struct int_stack *myStack = make_stack(1);
 	push(myStack, 1);
-	push(myStack, 2);
-	push(myStack, 3);
-	push(myStack, 4);
-	print_stack(myStack);
+	//push(myStack, 2);
+	//push(myStack, 3);
+	//push(myStack, 4);
+	//print_stack(myStack);
 	return 0;
 }
 
@@ -28,7 +28,6 @@ struct int_stack *make_stack(size_t node_capacity){
 	stack->node_capacity = node_capacity;
 	stack->head = newNode(node_capacity);
 	stack->head->next = newNode(node_capacity);
-	stack->head->next->contents = 42;
 
 	return stack;
 }
@@ -63,17 +62,21 @@ void free_stack(struct int_stack *stack){
 void push(struct int_stack *stack, int d){
 	struct is_node *curnode = stack->head->next;
 	/*We know only the first node will not be full
-	 * Check if the first node is full well.
+	 * Check if the first node is full.
 	 * */
-	if(curnode->next_index > stack->node_capacity){
+	//if(curnode->next_index > stack->node_capacity){
 		/*The first node was full; Create a new node at the top of stack*/
-		curnode = newNode(stack->node_capacity);
-		curnode->next = stack->head->next;
-		stack->head = curnode;
-	}
+	//	curnode = newNode(stack->node_capacity);
+	//	curnode->next = stack->head->next;
+	//	stack->head = curnode;
+	//}
 
 	/*Add to the node content the new data d*/
-	curnode->contents[curnode->next_index] = d;
+	printf("%d",curnode->next_index);
+	/*This line works*/
+	(*curnode).contents[1] = 5;
+	printf("Contents = %d", curnode->contents[1]);
+	//curnode->contents[curnode->next_index]) = d
 	curnode->next_index++;
 	stack->size++;
 }
