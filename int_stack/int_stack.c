@@ -20,11 +20,13 @@ int main(int argc, char **argv){
 	push(myStack, 3);
 	push(myStack, 4);
 	print_stack(myStack);
-	free_stack(myStack);
+	//free_stack(myStack);
+	reset_stack(myStack);
 	printf("Printing stack.\n");
 	print_stack(myStack);
 	push(myStack, 5);
-	//print_stack(myStack);
+	print_stack(myStack);
+	free_stack(myStack);
 	return 0;
 }
 
@@ -136,8 +138,9 @@ int top(struct int_stack *stack){
 
 /*Frees up both the array inside the node and the node itself*/
 void freeUp(struct is_node *curnode){
-	free(curnode->contents);
-	free(curnode);
+	//curnode->next = NULL;
+	//free(curnode->contents);
+	//free(curnode);
 }
 
 int is_empty(struct int_stack *stack){
