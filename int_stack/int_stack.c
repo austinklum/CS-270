@@ -12,24 +12,23 @@ struct is_node *newNode();
 void freeUp(struct is_node *curnode);
 
 
-//int main(int argc, char **argv){
-//	struct int_stack *myStack = make_stack(5);
-////	printf("%d\n", top(myStack));
-//	push(myStack, 1);
-//	push(myStack, 2);
-//	push(myStack, 3);
-//	push(myStack, 4);
-//	print_stack(myStack);
-//	//free_stack(myStack);
-//	reset_stack(myStack);
-//	printf("Printing stack.\n");
+int main(int argc, char **argv){
+	struct int_stack *myStack = make_stack(5);
+//	printf("%d\n",top(myStack));
+	push(myStack, 3);
+	push(myStack, 3);
+	push(myStack, 3);
+	print_stack(myStack);
+	//free_stack(myStack);
+	//reset_stack(myStack);
+	printf("Printing stack.\n");
 //	print_stack(myStack);
 //	push(myStack, 5);
 //	free_stack(myStack);
 //	print_stack(myStack);
-//
-//	return 0;
-//}
+
+	return 0;
+}
 
 struct int_stack *make_stack(int node_capacity){
 	/*Allocate space for the stack*/
@@ -69,14 +68,14 @@ void free_stack(struct int_stack *stack){
 	reset_stack(stack);
 
 	/*Free up the head and the stack itself*/
-	//freeUp(stack->head);
+	freeUp(stack->head);
 	free(stack);
 }
 
 void reset_stack(struct int_stack *stack){
-	struct is_node *curnode = stack->head;
+	struct is_node *curnode = stack->head->next;
 	/*Loop through all the nodes and free them up as you go*/
-	while(curnode->next != NULL){
+	while(curnode != NULL){
 		struct is_node *nextnode = curnode->next;
 		/*Free the array and free the node*/
 		freeUp(curnode);
@@ -85,20 +84,21 @@ void reset_stack(struct int_stack *stack){
 	/*The last node didn't get freed*/
 	//freeUp(curnode);
 	stack->head->next = NULL;
+	stack->head->next_index = 0;
 	stack->size = 0;
 }
 
 void push(struct int_stack *stack, int d){
-	struct is_node *curnode = stack->head->next;
+	struct is_node *curnode = stack->head;
 	/*We know only the first node will not be full
 	 * Check if the first node is full.
 	 * */
 	//printf("Stack size = %d\n", stack->size);
-	if(is_empty(stack) || curnode->next_index == stack->node_capacity){
+	if(curnode->next_index == stack->node_capacity){
 		/*The first node was full or didn't exist; Create a new node at the top of stack*/
 		curnode = newNode(stack->node_capacity);
-		curnode->next = stack->head->next;
-		stack->head->next = curnode;
+		curnode->next = stack->head;
+		stack->head = curnode;
 	}
 	/*Add to the node content the new data d*/
 	curnode->contents[curnode->next_index] = d;
@@ -109,7 +109,7 @@ void push(struct int_stack *stack, int d){
 int pop(struct int_stack *stack){
 	int retVal = -1;
 	if(!is_empty(stack)){
-		struct is_node *curnode = stack->head->next;
+		struct is_node *curnode = stack->head;
 
 		/*Save the return value, we may have to delete this node*/
 		retVal = curnode->contents[curnode->next_index-1];
@@ -118,10 +118,10 @@ int pop(struct int_stack *stack){
 		curnode->next_index--;
 		stack->size--;
 
-		if(curnode->next_index < 0){
+		if(curnode->next_index == 0 && curnode->next != NULL){
 			/*Delete the node*/
 			/*Link up head to the next node*/
-			stack->head->next = curnode->next;
+			stack->head = curnode->next;
 
 			/*Manage memory*/
 			freeUp(curnode);
@@ -134,7 +134,7 @@ int pop(struct int_stack *stack){
  * If empty return -1
  * */
 int top(struct int_stack *stack){
-	return !is_empty(stack) ? stack->head->next->contents[stack->head->next->next_index-1] : -1;
+	return !is_empty(stack) ? stack->head->contents[stack->head->next_index-1] : -1;
 }
 
 /*Frees up both the array inside the node and the node itself*/
@@ -153,22 +153,22 @@ void print_stack(struct int_stack *stack){
 	struct is_node *curnode = stack->head;
 	if(!is_empty(stack)){
 		/*The first node may not be full*/
-		if(curnode->next != NULL && !(curnode->next->next_index >= stack->node_capacity)){
+		if(curnode->next_index < stack->node_capacity){
 			printf("(");
-			for(i = curnode->next->next_index-1; i > 0; i--){
-				printf("%d,",curnode->next->contents[i]);
+			for(i = curnode->next_index-1; i >= 0; i--){
+				printf("%d,",curnode->contents[i]);
 			}
-			printf("%d]",curnode->next->contents[0]);
+			printf("%d]",curnode->contents[0]);
 			curnode = curnode->next;
 		}
 
 		/*Standard case: The node is full*/
-		while(curnode->next != NULL){
+		while(curnode != NULL){
 			printf("[");
-			for(i = curnode->next->next_index-1; i > 0; i--){
-				printf("%d,",curnode->next->contents[i]);
+			for(i = curnode->next_index-1; i >= 0; i--){
+				printf("%d,",curnode->contents[i]);
 			}
-			printf("%d]",curnode->next->contents[0]);
+			printf("%d]",curnode->contents[0]);
 			curnode = curnode->next;
 		}
 	} else {
