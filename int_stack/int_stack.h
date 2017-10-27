@@ -20,7 +20,7 @@ struct int_stack {
 };
 
 /* Operations on a stack */
-struct int_stack *make_stack(size_t node_capacity);
+struct int_stack *make_stack(int node_capacity);
 void free_stack(struct int_stack *stk);
 void reset_stack(struct int_stack *stk);
 void print_stack(struct int_stack *stk);

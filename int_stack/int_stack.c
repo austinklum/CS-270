@@ -12,25 +12,26 @@ struct is_node *newNode();
 void freeUp(struct is_node *curnode);
 
 
-int main(int argc, char **argv){
-	struct int_stack *myStack = make_stack(5);
-//	printf("%d\n", top(myStack));
-	push(myStack, 1);
-	push(myStack, 2);
-	push(myStack, 3);
-	push(myStack, 4);
-	print_stack(myStack);
-	//free_stack(myStack);
-	reset_stack(myStack);
-	printf("Printing stack.\n");
-	print_stack(myStack);
-	push(myStack, 5);
-	print_stack(myStack);
-	free_stack(myStack);
-	return 0;
-}
+//int main(int argc, char **argv){
+//	struct int_stack *myStack = make_stack(5);
+////	printf("%d\n", top(myStack));
+//	push(myStack, 1);
+//	push(myStack, 2);
+//	push(myStack, 3);
+//	push(myStack, 4);
+//	print_stack(myStack);
+//	//free_stack(myStack);
+//	reset_stack(myStack);
+//	printf("Printing stack.\n");
+//	print_stack(myStack);
+//	push(myStack, 5);
+//	free_stack(myStack);
+//	print_stack(myStack);
+//
+//	return 0;
+//}
 
-struct int_stack *make_stack(size_t node_capacity){
+struct int_stack *make_stack(int node_capacity){
 	/*Allocate space for the stack*/
 	struct int_stack *stack = malloc(sizeof(struct int_stack));
 
@@ -68,7 +69,7 @@ void free_stack(struct int_stack *stack){
 	reset_stack(stack);
 
 	/*Free up the head and the stack itself*/
-	freeUp(stack->head);
+	//freeUp(stack->head);
 	free(stack);
 }
 
@@ -82,7 +83,7 @@ void reset_stack(struct int_stack *stack){
 		curnode = nextnode;
 	}
 	/*The last node didn't get freed*/
-	freeUp(curnode);
+	//freeUp(curnode);
 	stack->head->next = NULL;
 	stack->size = 0;
 }
@@ -92,7 +93,7 @@ void push(struct int_stack *stack, int d){
 	/*We know only the first node will not be full
 	 * Check if the first node is full.
 	 * */
-	printf("Stack size = %d\n", stack->size);
+	//printf("Stack size = %d\n", stack->size);
 	if(is_empty(stack) || curnode->next_index == stack->node_capacity){
 		/*The first node was full or didn't exist; Create a new node at the top of stack*/
 		curnode = newNode(stack->node_capacity);
@@ -138,9 +139,9 @@ int top(struct int_stack *stack){
 
 /*Frees up both the array inside the node and the node itself*/
 void freeUp(struct is_node *curnode){
-	//curnode->next = NULL;
-	//free(curnode->contents);
-	//free(curnode);
+	curnode->next = NULL;
+	free(curnode->contents);
+	free(curnode);
 }
 
 int is_empty(struct int_stack *stack){
@@ -150,25 +151,29 @@ int is_empty(struct int_stack *stack){
 void print_stack(struct int_stack *stack){
 	int i;
 	struct is_node *curnode = stack->head;
-
-	/*The first node may not be full*/
-	if(curnode->next != NULL && !(curnode->next->next_index == stack->node_capacity)){
-		printf("(");
-		for(i = curnode->next->next_index-1; i > 0; i--){
-			printf("%d, ",curnode->next->contents[i]);
+	if(!is_empty(stack)){
+		/*The first node may not be full*/
+		if(curnode->next != NULL && !(curnode->next->next_index >= stack->node_capacity)){
+			printf("(");
+			for(i = curnode->next->next_index-1; i > 0; i--){
+				printf("%d,",curnode->next->contents[i]);
+			}
+			printf("%d]",curnode->next->contents[0]);
+			curnode = curnode->next;
 		}
-		printf("%d]",curnode->next->contents[0]);
-		curnode = curnode->next;
-	}
 
-	/*Standard case: The node is full*/
-	while(curnode->next != NULL){
-		printf("[");
-		for(i = curnode->next->next_index-1; i > 0; i--){
-			printf("%d, ",curnode->next->contents[i]);
+		/*Standard case: The node is full*/
+		while(curnode->next != NULL){
+			printf("[");
+			for(i = curnode->next->next_index-1; i > 0; i--){
+				printf("%d,",curnode->next->contents[i]);
+			}
+			printf("%d]",curnode->next->contents[0]);
+			curnode = curnode->next;
 		}
-		printf("%d]",curnode->next->contents[0]);
-		curnode = curnode->next;
+	} else {
+		printf("(]");
 	}
+	printf("\n");
 }
 
