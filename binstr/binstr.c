@@ -10,13 +10,17 @@
 #include "binstr.h"
 
 int main(int argc, char **argv){
-	int x = -1;
+	int x = 8;
+	int z = 4;
 	char *y = decimal_to_binary(x);
+	char *w = decimal_to_binary(z);
 	printf("How many bits for %d : %d\n",x, how_many_bits(x));
 	printf("Binary String rep of %d : %s\n",x,y);
 	printf("Taking Binary String %s into decimal : %d\n",y,binary_to_decimal(y));
 	printf("Negating %s to %s\n",y,negate(y));
 	printf("Sign Extending by 3 to %s : %s\n",y,sign_extend(y,3));
+	printf("Adding %d-[%s] and %d-[%s] to get %s : %d\n",x,y,z,w,add(y,w),binary_to_decimal(add(y,w)));
+	printf("Subbing %d-[%s] and %d-[%s] to get %s : %d\n",x,y,z,w,sub(y,w),binary_to_decimal(sub(y,w)));
 	return 0;
 }
 
@@ -159,25 +163,46 @@ char *add(char *arr1, char *arr2) {
 	strcpy(binStr2,arr2);
 
 	if(arr1Size > arr2Size) {
-		binStr2 = sign_extend(binStr2);
+		binStr2 = sign_extend(binStr2, arr1Size - arr2Size);
 	} else if (arr1Size < arr2Size) {
-		binStr1 = sign_extend(binStr1);
+		binStr1 = sign_extend(binStr1, arr2Size - arr1Size);
 	}
 	char *arr = malloc(strlen(binStr1) * sizeof(char));
 
 	int i = 0;
 	int carry = 0;
-	for(i = strlen(binStr1); i >= 0; i--) {
-		arr[i] = ((binStr1 - '0') + (binStr2 - '0') + carry) + '0';
+	for(i = strlen(binStr1) - 1; i >= 0; i--) {
+		/*Get the int rep of adding the binary digits together*/
+		int newNum = (binStr1[i] - '0') + (binStr2[i] - '0') + carry;
+		if(newNum == 0 || newNum == 1){
+			arr[i] = newNum + '0';
+			carry = 0;
+		/*Number must be 2 or 3*/
+		} else {
+			/*Subtracting two and adding '0' will shift 2 and 3 to 0 and 1*/
+			arr[i] = (newNum - 2) + '0';
+			carry = 1;
+		}
 	}
+	free(binStr1);
+	free(binStr2);
+	if(arr1[0] == arr2[0] && arr[0] != arr1[0]){
+		char cpy[strlen(arr)];
+		strcpy(cpy,arr);
+		arr = realloc(arr,(strlen(arr) + 2) * sizeof(char));
+		arr[0] = '*';
+		arr[1] = '\0';
+		strcat(arr,cpy);
+	}
+	return arr;
 
 }
-//char *sub(char *arr1, char *arr2) {
-//	/*
-//	 * Call negate on arr2, add 1
-//	 * call add
-//	 * */
-//
-//}
-//
+char *sub(char *arr1, char *arr2) {
+	/*
+	 * Call negate on arr2
+	 * call add
+	 * */
+	return (add(arr1,negate(arr2)));
+}
+
 
