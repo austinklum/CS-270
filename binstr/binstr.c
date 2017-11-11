@@ -9,20 +9,23 @@
 #include <string.h>
 #include "binstr.h"
 
-int main(int argc, char **argv){
-	int x = 8;
-	int z = 4;
-	char *y = decimal_to_binary(x);
-	char *w = decimal_to_binary(z);
-	printf("How many bits for %d : %d\n",x, how_many_bits(x));
-	printf("Binary String rep of %d : %s\n",x,y);
-	printf("Taking Binary String %s into decimal : %d\n",y,binary_to_decimal(y));
-	printf("Negating %s to %s\n",y,negate(y));
-	printf("Sign Extending by 3 to %s : %s\n",y,sign_extend(y,3));
-	printf("Adding %d-[%s] and %d-[%s] to get %s : %d\n",x,y,z,w,add(y,w),binary_to_decimal(add(y,w)));
-	printf("Subbing %d-[%s] and %d-[%s] to get %s : %d\n",x,y,z,w,sub(y,w),binary_to_decimal(sub(y,w)));
-	return 0;
-}
+//int main(int argc, char **argv){
+//	int x = 2;
+//	int z = 8;
+//	char *y = decimal_to_binary(x);
+//	char *w = decimal_to_binary(z);
+////	printf("How many bits for %d : %d\n",x, how_many_bits(x));
+////	printf("Binary String rep of %d : %s\n",x,y);
+////	printf("Taking Binary String %s into decimal : %d\n",y,binary_to_decimal(y));
+////	printf("Negating %s to %s\n",y,negate(y));
+////	printf("Sign Extending by 3 to %s : %s\n",y,sign_extend(y,3));
+////	printf("Adding %d-[%s] and %d-[%s] to get %s : %d\n",x,y,z,w,add(y,w),binary_to_decimal(add(y,w)));
+////	printf("Subbing %d-[%s] and %d-[%s] to get %s : %d\n",x,y,z,w,sub(y,w),binary_to_decimal(sub(y,w)));
+//	char *l = sign_extend(y,z);
+//	printf("\n%d : %s extended by %d = %s\n",x,y,z,l);
+//
+//	return 0;
+//}
 
 //Im not sure if this accurately represent a 2's complement bit count
 int how_many_bits(int dec) {
@@ -30,8 +33,12 @@ int how_many_bits(int dec) {
 	if (dec == 0) {
 		return 1;
 	}
-
 	int count = 1;
+
+	/*Handle negative powers of 2*/
+	if(dec < 0 && (dec*-1 & (dec*-1 - 1)) == 0 ) {
+		count = 0;
+	}
 	while(dec != 0) {
 		dec /= 2;
 		count++;
@@ -129,21 +136,28 @@ char *negate(char *oldArr) {
 char *sign_extend(char *oldArr, int ext) {
 	//Make a new array of length arr + int
 	//If 0 add more 0's
-	//If 1 add more 1's ???
+	//If 1 add more 1's
+	/*ext is less than binstr return a copy*/
+	if(ext < strlen(oldArr)){
+		char *arr = malloc(strlen(oldArr) * sizeof(char));
+		return strcpy(arr,oldArr);
+	}
+
 	/*Make space for the new extended array*/
-	char *arr = malloc((strlen(oldArr) + ext) * sizeof(char));
+	char *newPart = malloc((ext+1) * sizeof(char));
 	int isNeg = oldArr[0] == '1';
 	int i = 0;
 	/*Build up the padded extension depending on positivity*/
-	for (i = ext-1;i >= 0; i--) {
+	for (i = 0; i < ext - strlen(oldArr); i++) {
 		if (isNeg) {
-			arr[i] = '1';
+			newPart[i] = '1';
 		} else {
-			arr[i] = '0';
+			newPart[i] = '0';
 		}
 	}
+	newPart[i] = '\0';
 	/*Return the new extend piece and the old piece combined*/
-	return strcat(arr,oldArr);
+	return strcat(newPart,oldArr);
 }
 char *add(char *arr1, char *arr2) {
 	/*  Malloc a new array of the greater size of arr1 and arr2 ???
@@ -163,9 +177,9 @@ char *add(char *arr1, char *arr2) {
 	strcpy(binStr2,arr2);
 
 	if(arr1Size > arr2Size) {
-		binStr2 = sign_extend(binStr2, arr1Size - arr2Size);
+		binStr2 = sign_extend(binStr2, arr1Size);
 	} else if (arr1Size < arr2Size) {
-		binStr1 = sign_extend(binStr1, arr2Size - arr1Size);
+		binStr1 = sign_extend(binStr1, arr2Size);
 	}
 	char *arr = malloc(strlen(binStr1) * sizeof(char));
 
@@ -186,12 +200,18 @@ char *add(char *arr1, char *arr2) {
 	}
 	free(binStr1);
 	free(binStr2);
+
+	/*Handle overflow*/
 	if(arr1[0] == arr2[0] && arr[0] != arr1[0]){
+		/*Make copy of array*/
 		char cpy[strlen(arr)];
 		strcpy(cpy,arr);
+
+		/*Make more space*/
 		arr = realloc(arr,(strlen(arr) + 2) * sizeof(char));
 		arr[0] = '*';
 		arr[1] = '\0';
+		/*Add new '*' with copy of array*/
 		strcat(arr,cpy);
 	}
 	return arr;
@@ -202,7 +222,52 @@ char *sub(char *arr1, char *arr2) {
 	 * Call negate on arr2
 	 * call add
 	 * */
-	return (add(arr1,negate(arr2)));
+	return add(arr1,negate(arr2));
 }
+
+/* Alternative Method names
+ * ************************* */
+int hmb(int dec) {
+	return how_many_bits(dec);
+}
+
+char *d2b(int dec) {
+	return decimal_to_binary(dec);
+}
+
+int b2d(char *bin) {
+	return binary_to_decimal(bin);
+}
+
+char *neg(char *bin) {
+	return negate(bin);
+}
+
+char *sgn(char *bin, int ext) {
+	return sign_extend(bin,ext);
+}
+
+char *sign_ext(char *bin, int ext) {
+	return sign_extend(bin,ext);
+}
+
+char *add_bin(char *bin1, char *bin2) {
+	return add(bin1,bin2);
+}
+
+char *add_dec(int n1, int n2){
+	return add(binary_to_decimal(n1),binary_to_decimal(n2));
+}
+
+char *sub_bin(char *bin1, char *bin2) {
+	return sub(bin1,bin2);
+}
+
+char *sub_dec(int n1, int n2){
+	return sub(binary_to_decimal(n1),binary_to_decimal(n2));
+}
+
+
+
 
 
