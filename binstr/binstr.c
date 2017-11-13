@@ -62,7 +62,9 @@ char *decimal_to_binary(int dec) {
 		dec /= 2;
 	}
 	if(isNeg){
-		return negate(arr);
+		char* tempArr = negate(arr);
+		free(arr);
+		return tempArr;
 	}
 
 	return arr;
@@ -80,15 +82,21 @@ int binary_to_decimal(char *arr) {
 	 * If 1 negate the output and do the stuff
 	 * */
 	int isNeg = arr[0] == '1';
+	char *tempArr = NULL;
 	if (isNeg) {
-		arr = negate(arr);
+		/*The issue lies here*/
+		tempArr = negate(arr);
+	} else {
+		tempArr = arr;
 	}
+
 	for(i = size - 1; i >= 0; i--){
-		dec += (arr[i] - '0') * base;
+		dec += (tempArr[i] - '0') * base;
 		base *= 2;
 	}
 	if(isNeg) {
 		dec *= -1;
+		free(tempArr);
 	}
 	return dec;
 }
@@ -222,7 +230,10 @@ char *sub(char *arr1, char *arr2) {
 	 * Call negate on arr2
 	 * call add
 	 * */
-	return add(arr1,negate(arr2));
+	char *neg = negate(arr2);
+	char *res = add(arr1,neg);
+	free(neg);
+	return res;
 }
 
 /* Alternative Method names
