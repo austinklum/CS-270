@@ -207,7 +207,7 @@ char *add(char *arr1, char *arr2) {
 	if(arr1[0] == arr2[0] && arr[0] != arr1[0]){
 		/*Make more space*/
 		arr = realloc(arr,(strlen(arr) + 2) * sizeof(char));
-		for(i = strlen(arr)+1;i >= 0; i--) {
+		for(i = strlen(arr);i >= 0; i--) {
 			arr[i+1] = arr[i];
 		}
 		arr[0] = '*';
