@@ -177,28 +177,17 @@ char *add(char *arr1, char *arr2) {
 	 *	 May be an issue if arr1 = 1, arr2 = 1, carry = 1, should set the val to 1 with carry of 1
 	 *	 ?Add carry after the if check??
 	 */
-	int arr1Size = strlen(arr1);
-	int arr2Size = strlen(arr2);
+	int max = strlen(arr1) < strlen(arr2) ?  strlen(arr2) : strlen(arr1);
+
 	/*Create two array copies that I can modify without harm*/
-	char *binStr1 = malloc((arr1Size + 1) * sizeof(char));
-	char *binStr2 = malloc((arr2Size + 1) * sizeof(char));
+	char *binStr1 = sign_extend(arr1, max);
+	char *binStr2 = sign_extend(arr2, max);
 
-	binStr1[arr1Size] = '\0';
-	binStr2[arr2Size] = '\0';
-
-	strcpy(binStr1,arr1);
-	strcpy(binStr2,arr2);
-
-	if(arr1Size > arr2Size) {
-		binStr2 = sign_extend(binStr2, arr1Size);
-	} else if (arr1Size < arr2Size) {
-		binStr1 = sign_extend(binStr1, arr2Size);
-	}
-	char *arr = malloc((strlen(binStr1)+1) * sizeof(char));
-	arr[strlen(binStr1)] = '\0';
+	char *arr = malloc((max+1) * sizeof(char));
+	arr[max] = '\0';
 	int i = 0;
 	int carry = 0;
-	for(i = strlen(binStr1) - 1; i >= 0; i--) {
+	for(i = max - 1; i >= 0; i--) {
 		/*Get the int rep of adding the binary digits together*/
 		int newNum = (binStr1[i] - '0') + (binStr2[i] - '0') + carry;
 		if(newNum == 0 || newNum == 1){
