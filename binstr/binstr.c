@@ -205,18 +205,12 @@ char *add(char *arr1, char *arr2) {
 
 	/*Handle overflow*/
 	if(arr1[0] == arr2[0] && arr[0] != arr1[0]){
-		/*Make copy of array*/
-		char *cpy = malloc((strlen(arr)+1) * sizeof(char));
-		cpy[strlen(arr)] = '\0';
-		strcpy(cpy,arr);
-		free(arr);
 		/*Make more space*/
-		arr = malloc((strlen(arr) + 2) * sizeof(char));
+		arr = realloc(arr,(strlen(arr) + 2) * sizeof(char));
+		for(i = strlen(arr)+1;i >= 0; i--) {
+			arr[i+1] = arr[i];
+		}
 		arr[0] = '*';
-		arr[1] = '\0';
-		/*Add new '*' with copy of array*/
-		strcat(arr,cpy);
-		free(cpy);
 	}
 	return arr;
 
