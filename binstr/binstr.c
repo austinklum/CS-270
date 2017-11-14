@@ -108,7 +108,8 @@ char *negate(char *oldArr) {
 	int i = 0;
 	int size = strlen(oldArr);
 	/*Create a new copy of the array to return*/
-	char *arr = malloc(size * sizeof(char));
+	char *arr = malloc((size + 1) * sizeof(char));
+	arr[size] = '\0';
 	strcpy(arr,oldArr);
 	size--;
 
@@ -141,31 +142,32 @@ char *negate(char *oldArr) {
 	}
 	return arr;
 }
-char *sign_extend(char *oldArr, int ext) {
+char *sign_extend(char *binStr, int ext) {
 	//Make a new array of length arr + int
 	//If 0 add more 0's
 	//If 1 add more 1's
 	/*ext is less than binstr return a copy*/
-	if(ext < strlen(oldArr)){
-		char *arr = malloc(strlen(oldArr) * sizeof(char));
-		return strcpy(arr,oldArr);
+	if(ext < strlen(binStr)){
+		char *arr = malloc((strlen(binStr) + 1 )* sizeof(char));
+		arr[strlen(binStr)] = '\0';
+		return strcpy(arr,binStr);
 	}
 
 	/*Make space for the new extended array*/
 	char *newPart = malloc((ext+1) * sizeof(char));
-	int isNeg = oldArr[0] == '1';
+	newPart[ext-strlen(binStr)]='\0';
+	int isNeg = binStr[0] == '1';
 	int i = 0;
 	/*Build up the padded extension depending on positivity*/
-	for (i = 0; i < ext - strlen(oldArr); i++) {
+	for (i = 0; i < ext - strlen(binStr); i++) {
 		if (isNeg) {
 			newPart[i] = '1';
 		} else {
 			newPart[i] = '0';
 		}
 	}
-	newPart[i] = '\0';
 	/*Return the new extend piece and the old piece combined*/
-	return strcat(newPart,oldArr);
+	return strcat(newPart,binStr);
 }
 char *add(char *arr1, char *arr2) {
 	/*  Malloc a new array of the greater size of arr1 and arr2 ???
@@ -178,8 +180,11 @@ char *add(char *arr1, char *arr2) {
 	int arr1Size = strlen(arr1);
 	int arr2Size = strlen(arr2);
 	/*Create two array copies that I can modify without harm*/
-	char *binStr1 = malloc(arr1Size * sizeof(char));
-	char *binStr2 = malloc(arr2Size * sizeof(char));
+	char *binStr1 = malloc((arr1Size + 1) * sizeof(char));
+	char *binStr2 = malloc((arr2Size + 1) * sizeof(char));
+
+	binStr1[arr1Size] = '\0';
+	binStr2[arr2Size] = '\0';
 
 	strcpy(binStr1,arr1);
 	strcpy(binStr2,arr2);
@@ -189,8 +194,8 @@ char *add(char *arr1, char *arr2) {
 	} else if (arr1Size < arr2Size) {
 		binStr1 = sign_extend(binStr1, arr2Size);
 	}
-	char *arr = malloc(strlen(binStr1) * sizeof(char));
-
+	char *arr = malloc((strlen(binStr1)+1) * sizeof(char));
+	arr[strlen(binStr1)] = '\0';
 	int i = 0;
 	int carry = 0;
 	for(i = strlen(binStr1) - 1; i >= 0; i--) {
@@ -212,15 +217,17 @@ char *add(char *arr1, char *arr2) {
 	/*Handle overflow*/
 	if(arr1[0] == arr2[0] && arr[0] != arr1[0]){
 		/*Make copy of array*/
-		char cpy[strlen(arr)];
+		char *cpy = malloc((strlen(arr)+1) * sizeof(char));
+		cpy[strlen(arr)] = '\0';
 		strcpy(cpy,arr);
-
+		free(arr);
 		/*Make more space*/
-		arr = realloc(arr,(strlen(arr) + 2) * sizeof(char));
+		arr = malloc((strlen(arr) + 2) * sizeof(char));
 		arr[0] = '*';
 		arr[1] = '\0';
 		/*Add new '*' with copy of array*/
 		strcat(arr,cpy);
+		free(cpy);
 	}
 	return arr;
 
@@ -238,7 +245,7 @@ char *sub(char *arr1, char *arr2) {
 
 /* Alternative Method names
  * ************************* */
-int hmb(int dec) {
+/*int hmb(int dec) {
 	return how_many_bits(dec);
 }
 
@@ -276,7 +283,7 @@ char *sub_bin(char *bin1, char *bin2) {
 
 char *sub_dec(int n1, int n2){
 	return sub(binary_to_decimal(n1),binary_to_decimal(n2));
-}
+}*/
 
 
 
