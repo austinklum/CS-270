@@ -1,0 +1,65 @@
+# Austin Klum
+# 2017/11/23
+# Takes in user input into an array and prints out the array in sorted order using quicksort.
+	.data
+array:    .space 80
+lblSort:  .asciiz "Sorted: "
+lblSpace: .asciiz " "
+lblMsg:   .asciiz "sort was called!"
+	.text
+main:	addi	$v0, $zero, 5		#Get things ready for user input
+	syscall
+	add	$s2, $zero, $v0	 	#s2 = user inputted length 
+	add	$s1, $zero, $zero	# set s1 to i
+	la 	$s0, array		#Load first addr of array into s0
+
+startl:	slt 	$t0, $s1, $s2 	 	# length < i ? 1 : 0
+	beq 	$t0, $zero,endl 	# if i > input; stop user inputting
+	
+	#Get input
+	sll	$t0, $s1, 2 		#t0 = i * 4
+	add	$s4, $s0, $t0 	 	#s4 = arr + i*4
+	lw	$s3, 0($s4)	 	#s3 = arr[i]
+	addi 	$v0, $zero, 5 	 	#Get things ready for user input
+	syscall
+
+	#Add to array
+	add 	$s3, $zero, $v0  	#arr[i] = user input
+	sw	$s3, 0($s4)	 	#save the new value
+
+	addi	$s1, $s1, 1 	 	#i++
+	j startl			#Jump to start of loop
+
+endl: 	add	$a0, $s0, $zero		#a0 = array sart pos
+	add 	$a1, $s2, $zero		#a1 = length
+	jal	sort			#call sort
+	
+	#Loop through and print sorted array
+	add 	$s1, $zero, $zero	#i = 0
+print:	slt	$t0, $s1, $s2  		#t0 = i < length ? 1 : 0
+	beq	$t0, $zero, exit 	#(i < 0) -> exit
+	sll	$t0, $s1, 2 	 	# t0 = i * 4
+	add	$t0, $s0, $t0 	 	#t0 = arr + i*4
+	lw	$s2, 0($t0)		#s2 = arr[i]
+
+	#Load into arguments array[i]
+	la	$a0, 0($s2) 		# Load arr[i] into the args
+	addi	$v0, $zero, 1		# Tell system we want to print an integer
+	syscall
+	la	$a0, lblSpace  	 	#Load lblSpace into the args
+	addi 	$v0, $zero, 4	 	# Tell system we want to print
+	syscall
+	
+	addi	$s1, $s1, 1 	 	#i++
+	j print		
+	
+exit:	addi	$v0, $zero, 10		# Tell system to exit
+	syscall
+
+sort:   la	$a0, lblMsg 	 	#Load lblMsg into the args
+	addi 	$v0, $zero, 4	 	# Tell system we want to print
+	syscall
+	jr $ra	
+	
+	
+
