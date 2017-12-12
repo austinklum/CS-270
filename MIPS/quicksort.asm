@@ -87,9 +87,9 @@ sort:   addi	$sp, $sp, -4		#Add to the stack
 help:   addi 	$sp, $sp, -20		#add to stack
 	
 	#store ra,s0
-	sw	$a0,  16($sp)
-	sw 	$a1,  12($sp)		#
-	sw	$a2,  8($sp)		#	
+	sw	$a0,  16($sp)		# Save arr
+	sw 	$a1,  12($sp)		# left
+	sw	$a2,  8($sp)		# right	
 	sw 	$ra,  4($sp)		#$ra
 	sw	$s0,  0($sp)		#index
 
@@ -107,12 +107,17 @@ help:   addi 	$sp, $sp, -20		#add to stack
 	# get things ready for recursion
 	add	$a2, $t0, $zero 	#a2 = index - 1
 	jal 	help
-	j 	ret
-	
+	lw	$a0, 16($sp)		# restore array addr
+	lw	$a1, 12($sp)		# left
+	lw	$a2,  8($sp)		# right
+
 else:	slt	$t0, $s0, $a2		# t0 = index < right
 	beq 	$t0, $zero, ret		# !(index < right) -> ret
 	add	$a1, $s0, $zero		# a1 = index
 	jal	help
+	lw	$a0, 16($sp)	
+	lw	$a1, 12($sp)
+	lw	$a2,  8($sp)
 
 ret:	#restore values
 	lw 	$ra, 4($sp)		#$ra
@@ -161,7 +166,7 @@ while3:	sll	$t0, $s1, 2		# j * 4
 	addi	$s1, $s1, -1		# j--
 	j while3
 if: 	slt 	$t0, $s1, $s0		# !(j < i) == j >= i
-	bne	$t0, $zero, pRet	# !(j >= i) -> pRet
+	bne	$t0, $zero, jump	# !(j >= i) -> pRet
 	
 	# load arr[i] into t1 with t0 storing the addr
 	sll	$t0, $s0, 2		# t0 = i * 4
@@ -178,8 +183,7 @@ if: 	slt 	$t0, $s1, $s0		# !(j < i) == j >= i
 	
 	addi	$s0, $s0, 1		#i++
 	addi	$s1, $s1, -1		# j--		
-	j while1
-
+jump:	j while1
 pRet:   add 	$v0, $s0, $zero		#v0 = i
 	
 	#restore s0, s1, s2
